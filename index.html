@@ -17,7 +17,6 @@
     padding: 10px;
   }
 
-  /* 雲のアニメーション */
   .cloud {
     position: fixed;
     background: rgba(255,255,255,0.8);
@@ -37,14 +36,12 @@
   }
   .cloud1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
   .cloud1::after { width: 70px; height: 55px; top: -30px; left: 50px; }
-
   .cloud2 {
     width: 160px; height: 50px; top: 18%; left: -200px;
     animation: floatCloud 45s linear infinite 10s;
   }
   .cloud2::before { width: 65px; height: 60px; top: -30px; left: 25px; }
   .cloud2::after { width: 90px; height: 70px; top: -40px; left: 60px; }
-
   .cloud3 {
     width: 100px; height: 35px; top: 30%; left: -130px;
     animation: floatCloud 40s linear infinite 20s;
@@ -105,18 +102,14 @@
 
   .btn-refresh { background: linear-gradient(135deg, #4A90D9, #357ABD); }
   .btn-refresh:hover { background: linear-gradient(135deg, #357ABD, #2a6099); transform: translateY(-1px); }
-
   .btn-add-jp { background: linear-gradient(135deg, #e74c3c, #c0392b); }
   .btn-add-jp:hover { background: linear-gradient(135deg, #c0392b, #a93226); }
-
   .btn-add-hk { background: linear-gradient(135deg, #e67e22, #d35400); }
   .btn-add-hk:hover { background: linear-gradient(135deg, #d35400, #b94600); }
-
   .btn-save { background: linear-gradient(135deg, #27ae60, #219a52); }
   .btn-save:hover { background: linear-gradient(135deg, #219a52, #1a7a40); }
-
   .btn-delete { background: linear-gradient(135deg, #95a5a6, #7f8c8d); font-size: 0.75em; padding: 4px 8px; }
-
+  .btn-retry { background: linear-gradient(135deg, #f39c12, #e67e22); font-size: 0.7em; padding: 3px 8px; }
   .btn-history { background: linear-gradient(135deg, #8e44ad, #7d3c98); }
 
   .status-bar {
@@ -133,6 +126,15 @@
   .status-bar.error { background: rgba(231,76,60,0.15); color: #c0392b; border: 1px solid rgba(231,76,60,0.3); }
   .status-bar.loading { background: rgba(74,144,217,0.15); color: #2a6099; border: 1px solid rgba(74,144,217,0.3); }
 
+  .progress-bar {
+    text-align: center;
+    font-size: 0.8em;
+    color: #555;
+    margin: 5px 0;
+    display: none;
+  }
+  .progress-bar.show { display: block; }
+
   .table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -144,13 +146,13 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(255,255,255,0.92);
-    min-width: 700px;
+    background: rgba(255,255,255,0.95);
+    min-width: 750px;
   }
 
   thead th {
-    padding: 10px 8px;
-    font-size: 0.8em;
+    padding: 10px 6px;
+    font-size: 0.75em;
     color: white;
     text-align: center;
     position: sticky;
@@ -162,10 +164,11 @@
   .hk-table thead th { background: linear-gradient(135deg, #c0392b, #e74c3c); }
 
   tbody td {
-    padding: 8px 6px;
+    padding: 7px 5px;
     text-align: right;
-    font-size: 0.85em;
+    font-size: 0.82em;
     border-bottom: 1px solid #e8e8e8;
+    white-space: nowrap;
   }
 
   tbody tr:hover { background: rgba(74,144,217,0.08); }
@@ -176,12 +179,12 @@
   }
 
   .editable-input {
-    width: 80px;
-    padding: 4px 6px;
+    width: 75px;
+    padding: 4px 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     text-align: right;
-    font-size: 0.9em;
+    font-size: 0.88em;
     background: #fffef5;
   }
   .editable-input:focus {
@@ -189,6 +192,23 @@
     border-color: #4A90D9;
     box-shadow: 0 0 4px rgba(74,144,217,0.3);
   }
+
+  .price-cell {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    justify-content: flex-end;
+  }
+
+  .price-status {
+    font-size: 0.7em;
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .price-ok { background: #d4edda; color: #155724; }
+  .price-fail { background: #f8d7da; color: #721c24; }
+  .price-wait { background: #fff3cd; color: #856404; }
 
   .total-row {
     font-weight: 700;
@@ -215,10 +235,7 @@
     font-size: 1em;
   }
 
-  canvas {
-    width: 100% !important;
-    max-height: 300px;
-  }
+  canvas { width: 100% !important; max-height: 300px; }
 
   .summary-cards {
     display: grid;
@@ -235,22 +252,9 @@
     text-align: center;
   }
 
-  .summary-card .label {
-    font-size: 0.8em;
-    color: #666;
-    margin-bottom: 5px;
-  }
-
-  .summary-card .value {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #1a3a5c;
-  }
-
-  .summary-card .sub {
-    font-size: 0.8em;
-    margin-top: 3px;
-  }
+  .summary-card .label { font-size: 0.8em; color: #666; margin-bottom: 5px; }
+  .summary-card .value { font-size: 1.5em; font-weight: 700; color: #1a3a5c; }
+  .summary-card .sub { font-size: 0.8em; margin-top: 3px; }
 
   .note {
     background: rgba(255,255,255,0.7);
@@ -322,16 +326,15 @@
   @media (max-width: 768px) {
     h1 { font-size: 1.3em; }
     h2 { font-size: 1em; }
-    .editable-input { width: 65px; font-size: 0.8em; }
-    table { min-width: 650px; }
-    thead th { font-size: 0.7em; padding: 8px 4px; }
-    tbody td { font-size: 0.78em; padding: 6px 4px; }
+    .editable-input { width: 62px; font-size: 0.8em; }
+    table { min-width: 700px; }
+    thead th { font-size: 0.68em; padding: 8px 3px; }
+    tbody td { font-size: 0.76em; padding: 5px 3px; }
   }
 </style>
 </head>
 <body>
 
-<!-- 雲の装飾 -->
 <div class="cloud cloud1"></div>
 <div class="cloud cloud2"></div>
 <div class="cloud cloud3"></div>
@@ -360,9 +363,9 @@
   </div>
 
   <div class="status-bar" id="statusBar"></div>
+  <div class="progress-bar" id="progressBar"></div>
   <div class="timestamp" id="lastUpdate"></div>
 
-  <!-- 日本株テーブル -->
   <h2>🇯🇵 日本株式市場（JPY）</h2>
   <div class="table-wrapper">
     <table class="jp-table" id="jpTable">
@@ -372,6 +375,7 @@
           <th>銘柄名</th>
           <th>取得株価(円)</th>
           <th>最新株価(円)</th>
+          <th>状態</th>
           <th>保有株数</th>
           <th>評価額(円)</th>
           <th>損益(円)</th>
@@ -384,7 +388,6 @@
     </table>
   </div>
 
-  <!-- 香港株テーブル -->
   <h2>🇭🇰 香港株式市場（HKD）</h2>
   <div class="table-wrapper">
     <table class="hk-table" id="hkTable">
@@ -394,6 +397,7 @@
           <th>銘柄名</th>
           <th>取得株価(HKD)</th>
           <th>最新株価(HKD)</th>
+          <th>状態</th>
           <th>保有株数</th>
           <th>評価額(HKD)</th>
           <th>損益(HKD)</th>
@@ -406,7 +410,6 @@
     </table>
   </div>
 
-  <!-- グラフ -->
   <div class="chart-container">
     <h3>📈 日本株 総資産推移</h3>
     <canvas id="jpChart"></canvas>
@@ -423,19 +426,19 @@
 
   <div class="note">
     <strong>📌 使い方：</strong><br>
-    ・「全銘柄の株価を更新」ボタンで最新株価を取得します（Yahoo Finance API使用）<br>
-    ・取得株価・保有株数は直接編集できます（変更後は自動再計算）<br>
-    ・「現在の資産を記録」で推移グラフにデータポイントが追加されます<br>
-    ・銘柄の追加・削除が可能です<br>
-    ・データはブラウザのLocalStorageに保存されます（同じブラウザで開けば保持されます）<br>
-    ・iPad Chromeでご利用ください<br>
+    ・「全銘柄の株価を更新」ボタンで最新株価を取得します<br>
+    ・取得失敗した銘柄は「再取得」ボタンで個別に再試行できます<br>
+    ・それでも失敗する場合は最新株価欄に手動で入力してください<br>
+    ・取得株価・保有株数は直接編集できます（自動再計算）<br>
+    ・「現在の資産を記録」で推移グラフにデータが追加されます<br>
+    ・データはブラウザのLocalStorageに保存されます<br>
     <br>
-    <strong>⚠ 注意：</strong>Yahoo Finance APIはCORS制限により直接取得できない場合があります。
-    その場合、CORSプロキシ経由で取得を試みます。取得できない場合は手動で最新株価欄に入力してください。
+    <strong>💡 手動入力のヒント：</strong><br>
+    ・Google検索で「銘柄名 株価」と検索すると最新株価が確認できます<br>
+    ・最新株価欄に直接数値を入力すれば自動計算されます
   </div>
 </div>
 
-<!-- 銘柄追加モーダル -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h3 id="modalTitle">銘柄追加</h3>
@@ -455,9 +458,6 @@
 </div>
 
 <script>
-// ============================================================
-// データ定義
-// ============================================================
 const DEFAULT_JP = [
   { code: '2127', name: '日本M&A', costPrice: 767, shares: 800 },
   { code: '2702', name: '日本マクドナルド', costPrice: 6370, shares: 100 },
@@ -482,50 +482,43 @@ const DEFAULT_HK = [
   { code: '0293', name: 'Cathay Pacific', costPrice: 7.33, shares: 1000 },
 ];
 
-// ============================================================
-// LocalStorage管理
-// ============================================================
 function loadData() {
-  const saved = localStorage.getItem('portfolioData');
-  if (saved) {
-    return JSON.parse(saved);
-  }
+  const saved = localStorage.getItem('portfolioData_v2');
+  if (saved) return JSON.parse(saved);
   return {
-    jp: DEFAULT_JP.map(s => ({ ...s, currentPrice: null })),
-    hk: DEFAULT_HK.map(s => ({ ...s, currentPrice: null })),
+    jp: DEFAULT_JP.map(s => ({ ...s, currentPrice: null, priceStatus: 'none' })),
+    hk: DEFAULT_HK.map(s => ({ ...s, currentPrice: null, priceStatus: 'none' })),
   };
 }
 
 function saveData(data) {
-  localStorage.setItem('portfolioData', JSON.stringify(data));
+  localStorage.setItem('portfolioData_v2', JSON.stringify(data));
 }
 
 function loadHistory() {
-  const saved = localStorage.getItem('portfolioHistory');
+  const saved = localStorage.getItem('portfolioHistory_v2');
   return saved ? JSON.parse(saved) : { jp: [], hk: [] };
 }
 
 function saveHistoryData(history) {
-  localStorage.setItem('portfolioHistory', JSON.stringify(history));
+  localStorage.setItem('portfolioHistory_v2', JSON.stringify(history));
 }
 
 let portfolioData = loadData();
 
-// ============================================================
-// テーブル描画
-// ============================================================
+function formatNum(num, market) {
+  if (market === 'jp') return Math.round(num).toLocaleString('ja-JP');
+  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function renderTable(market) {
   const stocks = portfolioData[market];
   const bodyId = market === 'jp' ? 'jpBody' : 'hkBody';
   const footId = market === 'jp' ? 'jpFoot' : 'hkFoot';
-  const currency = market === 'jp' ? '円' : 'HKD';
   const tbody = document.getElementById(bodyId);
   const tfoot = document.getElementById(footId);
 
-  let totalValue = 0;
-  let totalCost = 0;
-  let totalPL = 0;
-  let allHavePrice = true;
+  let totalValue = 0, totalCost = 0, totalPL = 0, allHavePrice = true;
 
   let html = '';
   stocks.forEach((s, i) => {
@@ -545,11 +538,19 @@ function renderTable(market) {
     const plClass = pl !== null ? (pl >= 0 ? 'positive' : 'negative') : '';
     const plSign = pl !== null ? (pl >= 0 ? '+' : '') : '';
 
+    let statusHtml = '';
+    if (s.priceStatus === 'ok') statusHtml = '<span class="price-status price-ok">✅取得済</span>';
+    else if (s.priceStatus === 'fail') statusHtml = '<span class="price-status price-fail">❌失敗</span>';
+    else if (s.priceStatus === 'loading') statusHtml = '<span class="price-status price-wait">⏳取得中</span>';
+    else if (s.priceStatus === 'manual') statusHtml = '<span class="price-status price-ok">✏️手動</span>';
+    else statusHtml = '<span class="price-status" style="color:#999">—</span>';
+
     html += `<tr>
       <td style="text-align:center">${s.code}</td>
       <td>${s.name}</td>
       <td><input class="editable-input" type="number" step="any" value="${s.costPrice}" onchange="updateCost('${market}',${i},this.value)"></td>
-      <td><input class="editable-input" type="number" step="any" value="${cp !== null ? cp : ''}" placeholder="未取得" onchange="updateCurrentPrice('${market}',${i},this.value)"></td>
+      <td><input class="editable-input" type="number" step="any" value="${cp !== null ? cp : ''}" placeholder="手動入力" onchange="updateCurrentPrice('${market}',${i},this.value)"></td>
+      <td style="text-align:center">${statusHtml}<br><button class="btn-retry" onclick="retrySingle('${market}',${i})">再取得</button></td>
       <td><input class="editable-input" type="number" step="1" value="${s.shares}" onchange="updateShares('${market}',${i},this.value)"></td>
       <td>${evalValue !== null ? formatNum(evalValue, market) : '---'}</td>
       <td class="${plClass}">${pl !== null ? plSign + formatNum(pl, market) : '---'}</td>
@@ -566,48 +567,30 @@ function renderTable(market) {
 
   tfoot.innerHTML = `<tr class="total-row">
     <td colspan="2" style="text-align:center;font-weight:700">合計</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td style="font-weight:700">${allHavePrice || totalValue > 0 ? formatNum(totalValue, market) : '---'}</td>
-    <td class="${totalPLClass}" style="font-weight:700">${allHavePrice || totalPL !== 0 ? totalPLSign + formatNum(totalPL, market) : '---'}</td>
-    <td class="${totalPLClass}" style="font-weight:700">${allHavePrice || totalCost > 0 ? totalPLSign + totalPLRate.toFixed(2) + '%' : '---'}</td>
+    <td></td><td></td><td></td><td></td>
+    <td style="font-weight:700">${totalValue > 0 ? formatNum(totalValue, market) : '---'}</td>
+    <td class="${totalPLClass}" style="font-weight:700">${totalPL !== 0 ? totalPLSign + formatNum(totalPL, market) : '---'}</td>
+    <td class="${totalPLClass}" style="font-weight:700">${totalCost > 0 ? totalPLSign + totalPLRate.toFixed(2) + '%' : '---'}</td>
     <td></td>
   </tr>`;
 
-  // サマリーカード更新
   if (market === 'jp') {
     document.getElementById('jp-total-display').textContent = totalValue > 0 ? '¥' + formatNum(totalValue, 'jp') : '---';
     const plDisp = document.getElementById('jp-pl-display');
-    if (totalPL !== 0 || allHavePrice) {
+    if (totalPL !== 0) {
       plDisp.textContent = `損益: ${totalPLSign}¥${formatNum(Math.abs(totalPL), 'jp')} (${totalPLSign}${totalPLRate.toFixed(2)}%)`;
       plDisp.className = 'sub ' + totalPLClass;
-    } else {
-      plDisp.textContent = '';
-    }
+    } else { plDisp.textContent = ''; }
   } else {
     document.getElementById('hk-total-display').textContent = totalValue > 0 ? 'HK$' + formatNum(totalValue, 'hk') : '---';
     const plDisp = document.getElementById('hk-pl-display');
-    if (totalPL !== 0 || allHavePrice) {
+    if (totalPL !== 0) {
       plDisp.textContent = `損益: ${totalPLSign}HK$${formatNum(Math.abs(totalPL), 'hk')} (${totalPLSign}${totalPLRate.toFixed(2)}%)`;
       plDisp.className = 'sub ' + totalPLClass;
-    } else {
-      plDisp.textContent = '';
-    }
+    } else { plDisp.textContent = ''; }
   }
 }
 
-function formatNum(num, market) {
-  if (market === 'jp') {
-    return Math.round(num).toLocaleString('ja-JP');
-  } else {
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-}
-
-// ============================================================
-// 編集機能
-// ============================================================
 function updateCost(market, index, value) {
   portfolioData[market][index].costPrice = parseFloat(value) || 0;
   saveData(portfolioData);
@@ -615,7 +598,13 @@ function updateCost(market, index, value) {
 }
 
 function updateCurrentPrice(market, index, value) {
-  portfolioData[market][index].currentPrice = value !== '' ? parseFloat(value) : null;
+  if (value !== '' && value !== null) {
+    portfolioData[market][index].currentPrice = parseFloat(value);
+    portfolioData[market][index].priceStatus = 'manual';
+  } else {
+    portfolioData[market][index].currentPrice = null;
+    portfolioData[market][index].priceStatus = 'none';
+  }
   saveData(portfolioData);
   renderTable(market);
 }
@@ -634,9 +623,6 @@ function deleteStock(market, index) {
   }
 }
 
-// ============================================================
-// 銘柄追加モーダル
-// ============================================================
 let addMarket = 'jp';
 
 function openAddModal(market) {
@@ -659,61 +645,96 @@ function confirmAdd() {
   const name = document.getElementById('modalName').value.trim();
   const price = parseFloat(document.getElementById('modalPrice').value);
   const shares = parseInt(document.getElementById('modalShares').value);
-
   if (!code || !name || isNaN(price) || isNaN(shares)) {
     alert('すべての項目を入力してください');
     return;
   }
-
   portfolioData[addMarket].push({
-    code: code,
-    name: name,
-    costPrice: price,
-    shares: shares,
-    currentPrice: null,
+    code: code, name: name, costPrice: price,
+    shares: shares, currentPrice: null, priceStatus: 'none',
   });
-
   saveData(portfolioData);
   renderTable(addMarket);
   closeAddModal();
   showStatus('銘柄を追加しました', 'success');
 }
 
-// ============================================================
-// 株価取得（Yahoo Finance API via CORSプロキシ）
-// ============================================================
 function showStatus(msg, type) {
   const bar = document.getElementById('statusBar');
   bar.textContent = msg;
   bar.className = 'status-bar show ' + type;
   if (type !== 'loading') {
-    setTimeout(() => { bar.classList.remove('show'); }, 5000);
+    setTimeout(() => { bar.classList.remove('show'); }, 6000);
   }
 }
 
-async function fetchPrice(symbol) {
-  // Yahoo Finance v8 API
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+function showProgress(msg) {
+  const bar = document.getElementById('progressBar');
+  bar.textContent = msg;
+  bar.className = 'progress-bar show';
+}
 
-  // 複数のCORSプロキシを試行
+function hideProgress() {
+  document.getElementById('progressBar').classList.remove('show');
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getYahooSymbol(market, code) {
+  if (market === 'jp') return code + '.T';
+  // 香港株：先頭ゼロを除去したものと、そのままの両方を返す
+  const trimmed = code.replace(/^0+/, '');
+  if (trimmed !== code) {
+    return [code + '.HK', trimmed + '.HK'];
+  }
+  return [code + '.HK'];
+}
+
+async function fetchPriceWithRetry(symbols, retries = 2) {
+  if (typeof symbols === 'string') symbols = [symbols];
+
   const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    (url) => `https://cors-anywhere.herokuapp.com/${url}`,
+    (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
   ];
 
-  for (const proxyUrl of proxies) {
-    try {
-      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (meta && meta.regularMarketPrice) {
-        return meta.regularMarketPrice;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    for (const symbol of symbols) {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+
+      for (const makeProxy of proxies) {
+        try {
+          const proxyUrl = makeProxy(yahooUrl);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+          const resp = await fetch(proxyUrl, {
+            signal: controller.signal,
+            headers: { 'Accept': 'application/json' }
+          });
+          clearTimeout(timeoutId);
+
+          if (!resp.ok) continue;
+
+          const text = await resp.text();
+          let data;
+          try { data = JSON.parse(text); } catch(e) { continue; }
+
+          const meta = data?.chart?.result?.[0]?.meta;
+          if (meta && meta.regularMarketPrice && meta.regularMarketPrice > 0) {
+            return meta.regularMarketPrice;
+          }
+        } catch (e) {
+          continue;
+        }
       }
-    } catch (e) {
-      continue;
     }
+    if (attempt < retries) await sleep(2000);
   }
   return null;
 }
@@ -721,66 +742,80 @@ async function fetchPrice(symbol) {
 async function refreshAllPrices() {
   showStatus('株価を取得中です... しばらくお待ちください', 'loading');
 
-  let successCount = 0;
-  let failCount = 0;
+  const allStocks = [
+    ...portfolioData.jp.map((s, i) => ({ market: 'jp', index: i })),
+    ...portfolioData.hk.map((s, i) => ({ market: 'hk', index: i })),
+  ];
+
+  let successCount = 0, failCount = 0;
   const failedNames = [];
 
-  // 日本株
-  for (let i = 0; i < portfolioData.jp.length; i++) {
-    const s = portfolioData.jp[i];
-    const symbol = s.code + '.T';
-    const price = await fetchPrice(symbol);
+  for (let n = 0; n < allStocks.length; n++) {
+    const { market, index } = allStocks[n];
+    const s = portfolioData[market][index];
+
+    showProgress(`取得中... (${n + 1}/${allStocks.length}) ${s.name}`);
+
+    portfolioData[market][index].priceStatus = 'loading';
+    renderTable(market);
+
+    const symbols = getYahooSymbol(market, s.code);
+    const price = await fetchPriceWithRetry(symbols);
+
     if (price !== null) {
-      portfolioData.jp[i].currentPrice = price;
+      portfolioData[market][index].currentPrice = price;
+      portfolioData[market][index].priceStatus = 'ok';
       successCount++;
     } else {
+      portfolioData[market][index].priceStatus = 'fail';
       failCount++;
       failedNames.push(s.name);
     }
-    renderTable('jp');
+
+    saveData(portfolioData);
+    renderTable(market);
+
+    if (n < allStocks.length - 1) await sleep(1500);
   }
 
-  // 香港株
-  for (let i = 0; i < portfolioData.hk.length; i++) {
-    const s = portfolioData.hk[i];
-    const symbol = s.code.replace(/^0+/, '') + '.HK';
-    // 香港株は4桁コードの場合もあるので、先頭ゼロを除去してから.HKを付ける
-    // ただしYahoo Financeでは0005.HKのように4桁のままの場合もある
-    const symbols = [s.code + '.HK', s.code.replace(/^0+/, '') + '.HK'];
-    let price = null;
-    for (const sym of symbols) {
-      price = await fetchPrice(sym);
-      if (price !== null) break;
-    }
-    if (price !== null) {
-      portfolioData.hk[i].currentPrice = price;
-      successCount++;
-    } else {
-      failCount++;
-      failedNames.push(s.name);
-    }
-    renderTable('hk');
-  }
-
-  saveData(portfolioData);
+  hideProgress();
 
   const now = new Date().toLocaleString('ja-JP');
   document.getElementById('lastUpdate').textContent = `最終更新: ${now}`;
-  localStorage.setItem('lastUpdate', now);
+  localStorage.setItem('lastUpdate_v2', now);
 
   if (failCount === 0) {
     showStatus(`✅ 全${successCount}銘柄の株価を取得しました`, 'success');
   } else {
-    showStatus(`⚠ ${successCount}銘柄取得成功 / ${failCount}銘柄取得失敗（${failedNames.join(', ')}）→ 手動入力してください`, 'error');
+    showStatus(`⚠ ${successCount}銘柄成功 / ${failCount}銘柄失敗（${failedNames.join(', ')}）→ 再取得ボタンまたは手動入力してください`, 'error');
   }
 }
 
-// ============================================================
-// 履歴・グラフ
-// ============================================================
+async function retrySingle(market, index) {
+  const s = portfolioData[market][index];
+  portfolioData[market][index].priceStatus = 'loading';
+  renderTable(market);
+
+  showStatus(`${s.name} の株価を再取得中...`, 'loading');
+
+  const symbols = getYahooSymbol(market, s.code);
+  const price = await fetchPriceWithRetry(symbols, 3);
+
+  if (price !== null) {
+    portfolioData[market][index].currentPrice = price;
+    portfolioData[market][index].priceStatus = 'ok';
+    showStatus(`✅ ${s.name} の株価を取得しました: ${price}`, 'success');
+  } else {
+    portfolioData[market][index].priceStatus = 'fail';
+    showStatus(`❌ ${s.name} の株価を取得できませんでした。手動で入力してください。`, 'error');
+  }
+
+  saveData(portfolioData);
+  renderTable(market);
+}
+
 function calcTotal(market) {
-  let total = 0;
-  let allHave = true;
+  let total = 0, allHave = true;
   portfolioData[market].forEach(s => {
     if (s.currentPrice !== null) {
       total += s.currentPrice * s.shares;
@@ -796,22 +831,16 @@ function saveHistory() {
   const hkTotal = calcTotal('hk');
 
   if (jpTotal === null && hkTotal === null) {
-    alert('株価が取得されていません。先に株価を更新してください。');
+    alert('株価が取得されていません。先に株価を更新するか手動入力してください。');
     return;
   }
 
   const history = loadHistory();
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ja-JP');
-  const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-  const label = dateStr + ' ' + timeStr;
+  const label = now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
 
-  if (jpTotal !== null) {
-    history.jp.push({ date: label, value: Math.round(jpTotal) });
-  }
-  if (hkTotal !== null) {
-    history.hk.push({ date: label, value: Math.round(hkTotal * 100) / 100 });
-  }
+  if (jpTotal !== null) history.jp.push({ date: label, value: Math.round(jpTotal) });
+  if (hkTotal !== null) history.hk.push({ date: label, value: Math.round(hkTotal * 100) / 100 });
 
   saveHistoryData(history);
   renderCharts();
@@ -826,9 +855,6 @@ function clearHistory() {
   }
 }
 
-// ============================================================
-// Canvas グラフ描画（ライブラリ不使用）
-// ============================================================
 function renderCharts() {
   const history = loadHistory();
   drawChart('jpChart', history.jp, '#2c3e50', '#4A90D9', '¥');
@@ -839,7 +865,6 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
   const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-
   const rect = canvas.parentElement.getBoundingClientRect();
   const w = rect.width - 30;
   const h = 280;
@@ -849,14 +874,13 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
   canvas.style.width = w + 'px';
   canvas.style.height = h + 'px';
   ctx.scale(dpr, dpr);
-
   ctx.clearRect(0, 0, w, h);
 
   if (!data || data.length === 0) {
     ctx.fillStyle = '#999';
     ctx.font = '14px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('データがありません。「現在の資産を記録」ボタンでデータを追加してください。', w / 2, h / 2);
+    ctx.fillText('データがありません。「現在の資産を記録」でデータを追加してください。', w / 2, h / 2);
     return;
   }
 
@@ -867,17 +891,11 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
   const values = data.map(d => d.value);
   let minVal = Math.min(...values);
   let maxVal = Math.max(...values);
-
-  if (minVal === maxVal) {
-    minVal = minVal * 0.95;
-    maxVal = maxVal * 1.05;
-  }
-
+  if (minVal === maxVal) { minVal *= 0.95; maxVal *= 1.05; }
   const range = maxVal - minVal;
   const yMin = minVal - range * 0.1;
   const yMax = maxVal + range * 0.1;
 
-  // グリッド
   ctx.strokeStyle = '#e0e0e0';
   ctx.lineWidth = 0.5;
   const gridLines = 5;
@@ -887,26 +905,18 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
     ctx.moveTo(padding.left, y);
     ctx.lineTo(w - padding.right, y);
     ctx.stroke();
-
     const val = yMax - ((yMax - yMin) / gridLines) * i;
     ctx.fillStyle = '#666';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'right';
-    if (prefix === '¥') {
-      ctx.fillText(prefix + Math.round(val).toLocaleString(), padding.left - 5, y + 3);
-    } else {
-      ctx.fillText(prefix + val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }), padding.left - 5, y + 3);
-    }
+    ctx.fillText(prefix === '¥' ? prefix + Math.round(val).toLocaleString() : prefix + val.toLocaleString('en-US', { maximumFractionDigits: 0 }), padding.left - 5, y + 3);
   }
 
-  // データポイント座標
-  const points = data.map((d, i) => {
-    const x = padding.left + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * i);
-    const y = padding.top + chartH - ((d.value - yMin) / (yMax - yMin)) * chartH;
-    return { x, y };
-  });
+  const points = data.map((d, i) => ({
+    x: padding.left + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * i),
+    y: padding.top + chartH - ((d.value - yMin) / (yMax - yMin)) * chartH,
+  }));
 
-  // 塗りつぶし
   ctx.beginPath();
   ctx.moveTo(points[0].x, padding.top + chartH);
   points.forEach(p => ctx.lineTo(p.x, p.y));
@@ -918,19 +928,14 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // ライン
   ctx.beginPath();
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';
-  points.forEach((p, i) => {
-    if (i === 0) ctx.moveTo(p.x, p.y);
-    else ctx.lineTo(p.x, p.y);
-  });
+  points.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
   ctx.stroke();
 
-  // ドット
-  points.forEach((p, i) => {
+  points.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = lineColor;
@@ -940,7 +945,6 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
     ctx.stroke();
   });
 
-  // X軸ラベル
   ctx.fillStyle = '#666';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'center';
@@ -956,35 +960,23 @@ function drawChart(canvasId, data, lineColor, fillColor, prefix) {
     }
   });
 
-  // 最新値表示
   if (data.length > 0) {
     const last = data[data.length - 1];
     const lp = points[points.length - 1];
     ctx.fillStyle = lineColor;
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
-    const dispVal = prefix === '¥' ? prefix + Math.round(last.value).toLocaleString() :
-      prefix + last.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    ctx.fillText(dispVal, lp.x, lp.y - 12);
+    ctx.fillText(prefix === '¥' ? prefix + Math.round(last.value).toLocaleString() : prefix + last.value.toLocaleString('en-US', { minimumFractionDigits: 2 }), lp.x, lp.y - 12);
   }
 }
 
-// ============================================================
-// 初期化
-// ============================================================
 function init() {
   renderTable('jp');
   renderTable('hk');
   renderCharts();
-
-  const lastUpdate = localStorage.getItem('lastUpdate');
-  if (lastUpdate) {
-    document.getElementById('lastUpdate').textContent = `最終更新: ${lastUpdate}`;
-  }
-
-  window.addEventListener('resize', () => {
-    renderCharts();
-  });
+  const lastUpdate = localStorage.getItem('lastUpdate_v2');
+  if (lastUpdate) document.getElementById('lastUpdate').textContent = `最終更新: ${lastUpdate}`;
+  window.addEventListener('resize', renderCharts);
 }
 
 init();

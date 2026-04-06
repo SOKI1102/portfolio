@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>株式ポートフォリオ管理</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 20%, #E0F0FF 40%, #F0F8FF 60%, #FFFFFF 80%);
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+    padding: 10px;
+  }
+
+  /* 雲のアニメーション */
+  .cloud {
+    position: fixed;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+  }
+  .cloud1 {
+    width: 120px; height: 40px; top: 8%; left: -150px;
+    animation: floatCloud 35s linear infinite;
+  }
+  .cloud1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
+  .cloud1::after { width: 70px; height: 55px; top: -30px; left: 50px; }
+
+  .cloud2 {
+    width: 160px; height: 50px; top: 18%; left: -200px;
+    animation: floatCloud 45s linear infinite 10s;
+  }
+  .cloud2::before { width: 65px; height: 60px; top: -30px; left: 25px; }
+  .cloud2::after { width: 90px; height: 70px; top: -40px; left: 60px; }
+
+  .cloud3 {
+    width: 100px; height: 35px; top: 30%; left: -130px;
+    animation: floatCloud 40s linear infinite 20s;
+  }
+  .cloud3::before { width: 45px; height: 45px; top: -22px; left: 15px; }
+  .cloud3::after { width: 60px; height: 48px; top: -28px; left: 40px; }
+
+  @keyframes floatCloud {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 300px)); }
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  h1 {
+    text-align: center;
+    color: #1a3a5c;
+    font-size: 1.6em;
+    margin: 15px 0;
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+  }
+
+  h2 {
+    color: #1a3a5c;
+    font-size: 1.2em;
+    margin: 20px 0 10px 0;
+    padding: 8px 15px;
+    border-left: 5px solid #4A90D9;
+    background: rgba(255,255,255,0.6);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .btn-group {
+    text-align: center;
+    margin: 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: white;
+    touch-action: manipulation;
+  }
+
+  .btn-refresh { background: linear-gradient(135deg, #4A90D9, #357ABD); }
+  .btn-refresh:hover { background: linear-gradient(135deg, #357ABD, #2a6099); transform: translateY(-1px); }
+
+  .btn-add-jp { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+  .btn-add-jp:hover { background: linear-gradient(135deg, #c0392b, #a93226); }
+
+  .btn-add-hk { background: linear-gradient(135deg, #e67e22, #d35400); }
+  .btn-add-hk:hover { background: linear-gradient(135deg, #d35400, #b94600); }
+
+  .btn-save { background: linear-gradient(135deg, #27ae60, #219a52); }
+  .btn-save:hover { background: linear-gradient(135deg, #219a52, #1a7a40); }
+
+  .btn-delete { background: linear-gradient(135deg, #95a5a6, #7f8c8d); font-size: 0.75em; padding: 4px 8px; }
+
+  .btn-history { background: linear-gradient(135deg, #8e44ad, #7d3c98); }
+
+  .status-bar {
+    text-align: center;
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85em;
+    display: none;
+  }
+  .status-bar.show { display: block; }
+  .status-bar.success { background: rgba(39,174,96,0.15); color: #1a7a40; border: 1px solid rgba(39,174,96,0.3); }
+  .status-bar.error { background: rgba(231,76,60,0.15); color: #c0392b; border: 1px solid rgba(231,76,60,0.3); }
+  .status-bar.loading { background: rgba(74,144,217,0.15); color: #2a6099; border: 1px solid rgba(74,144,217,0.3); }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 10px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.92);
+    min-width: 700px;
+  }
+
+  thead th {
+    padding: 10px 8px;
+    font-size: 0.8em;
+    color: white;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .jp-table thead th { background: linear-gradient(135deg, #2c3e50, #34495e); }
+  .hk-table thead th { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+
+  tbody td {
+    padding: 8px 6px;
+    text-align: right;
+    font-size: 0.85em;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  tbody tr:hover { background: rgba(74,144,217,0.08); }
+
+  tbody td:first-child, tbody td:nth-child(2) {
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .editable-input {
+    width: 80px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: right;
+    font-size: 0.9em;
+    background: #fffef5;
+  }
+  .editable-input:focus {
+    outline: none;
+    border-color: #4A90D9;
+    box-shadow: 0 0 4px rgba(74,144,217,0.3);
+  }
+
+  .total-row {
+    font-weight: 700;
+    font-size: 0.95em;
+  }
+  .jp-table .total-row td { background: rgba(44,62,80,0.08); border-top: 2px solid #2c3e50; }
+  .hk-table .total-row td { background: rgba(192,57,43,0.08); border-top: 2px solid #c0392b; }
+
+  .positive { color: #27ae60; }
+  .negative { color: #e74c3c; }
+
+  .chart-container {
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  .chart-container h3 {
+    text-align: center;
+    color: #1a3a5c;
+    margin-bottom: 10px;
+    font-size: 1em;
+  }
+
+  canvas {
+    width: 100% !important;
+    max-height: 300px;
+  }
+
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
+  }
+
+  .summary-card {
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .summary-card .label {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  .summary-card .value {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1a3a5c;
+  }
+
+  .summary-card .sub {
+    font-size: 0.8em;
+    margin-top: 3px;
+  }
+
+  .note {
+    background: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 0.75em;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .modal h3 { margin-bottom: 15px; color: #1a3a5c; }
+
+  .modal label {
+    display: block;
+    margin: 8px 0 3px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9em;
+  }
+
+  .modal .modal-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .modal .modal-btns button { flex: 1; }
+
+  .btn-cancel { background: #95a5a6; }
+  .btn-confirm-jp { background: linear-gradient(135deg, #2c3e50, #34495e); }
+  .btn-confirm-hk { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+
+  .timestamp {
+    text-align: center;
+    font-size: 0.75em;
+    color: #888;
+    margin: 5px 0;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 1.3em; }
+    h2 { font-size: 1em; }
+    .editable-input { width: 65px; font-size: 0.8em; }
+    table { min-width: 650px; }
+    thead th { font-size: 0.7em; padding: 8px 4px; }
+    tbody td { font-size: 0.78em; padding: 6px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 雲の装飾 -->
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="cloud cloud3"></div>
+
+<div class="container">
+  <h1>📊 株式ポートフォリオ管理</h1>
+
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="label">🇯🇵 日本株 総資産</div>
+      <div class="value" id="jp-total-display">---</div>
+      <div class="sub" id="jp-pl-display"></div>
+    </div>
+    <div class="summary-card">
+      <div class="label">🇭🇰 香港株 総資産</div>
+      <div class="value" id="hk-total-display">---</div>
+      <div class="sub" id="hk-pl-display"></div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-refresh" onclick="refreshAllPrices()">🔄 全銘柄の株価を更新</button>
+    <button class="btn-save" onclick="saveHistory()">💾 現在の資産を記録</button>
+    <button class="btn-add-jp" onclick="openAddModal('jp')">＋ 日本株追加</button>
+    <button class="btn-add-hk" onclick="openAddModal('hk')">＋ 香港株追加</button>
+  </div>
+
+  <div class="status-bar" id="statusBar"></div>
+  <div class="timestamp" id="lastUpdate"></div>
+
+  <!-- 日本株テーブル -->
+  <h2>🇯🇵 日本株式市場（JPY）</h2>
+  <div class="table-wrapper">
+    <table class="jp-table" id="jpTable">
+      <thead>
+        <tr>
+          <th>コード</th>
+          <th>銘柄名</th>
+          <th>取得株価(円)</th>
+          <th>最新株価(円)</th>
+          <th>保有株数</th>
+          <th>評価額(円)</th>
+          <th>損益(円)</th>
+          <th>損益率</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="jpBody"></tbody>
+      <tfoot id="jpFoot"></tfoot>
+    </table>
+  </div>
+
+  <!-- 香港株テーブル -->
+  <h2>🇭🇰 香港株式市場（HKD）</h2>
+  <div class="table-wrapper">
+    <table class="hk-table" id="hkTable">
+      <thead>
+        <tr>
+          <th>コード</th>
+          <th>銘柄名</th>
+          <th>取得株価(HKD)</th>
+          <th>最新株価(HKD)</th>
+          <th>保有株数</th>
+          <th>評価額(HKD)</th>
+          <th>損益(HKD)</th>
+          <th>損益率</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="hkBody"></tbody>
+      <tfoot id="hkFoot"></tfoot>
+    </table>
+  </div>
+
+  <!-- グラフ -->
+  <div class="chart-container">
+    <h3>📈 日本株 総資産推移</h3>
+    <canvas id="jpChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h3>📈 香港株 総資産推移</h3>
+    <canvas id="hkChart"></canvas>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-history" onclick="clearHistory()">🗑 履歴クリア</button>
+  </div>
+
+  <div class="note">
+    <strong>📌 使い方：</strong><br>
+    ・「全銘柄の株価を更新」ボタンで最新株価を取得します（Yahoo Finance API使用）<br>
+    ・取得株価・保有株数は直接編集できます（変更後は自動再計算）<br>
+    ・「現在の資産を記録」で推移グラフにデータポイントが追加されます<br>
+    ・銘柄の追加・削除が可能です<br>
+    ・データはブラウザのLocalStorageに保存されます（同じブラウザで開けば保持されます）<br>
+    ・iPad Chromeでご利用ください<br>
+    <br>
+    <strong>⚠ 注意：</strong>Yahoo Finance APIはCORS制限により直接取得できない場合があります。
+    その場合、CORSプロキシ経由で取得を試みます。取得できない場合は手動で最新株価欄に入力してください。
+  </div>
+</div>
+
+<!-- 銘柄追加モーダル -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3 id="modalTitle">銘柄追加</h3>
+    <label>証券コード</label>
+    <input type="text" id="modalCode" placeholder="例: 7203">
+    <label>銘柄名</label>
+    <input type="text" id="modalName" placeholder="例: トヨタ自動車">
+    <label>取得株価</label>
+    <input type="number" id="modalPrice" step="any" placeholder="例: 2500">
+    <label>保有株数</label>
+    <input type="number" id="modalShares" step="1" placeholder="例: 100">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAddModal()">キャンセル</button>
+      <button id="modalConfirmBtn" onclick="confirmAdd()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// データ定義
+// ============================================================
+const DEFAULT_JP = [
+  { code: '2127', name: '日本M&A', costPrice: 767, shares: 800 },
+  { code: '2702', name: '日本マクドナルド', costPrice: 6370, shares: 100 },
+  { code: '6869', name: 'シスメックス', costPrice: 1501, shares: 800 },
+  { code: '4661', name: 'オリエンタルランド', costPrice: 3084, shares: 500 },
+  { code: '8604', name: '野村HD', costPrice: 635, shares: 200 },
+  { code: '4005', name: '住友化学', costPrice: 327, shares: 500 },
+  { code: '9973', name: 'Kozo', costPrice: 44, shares: 4300 },
+  { code: '7201', name: '日産', costPrice: 561, shares: 300 },
+  { code: '6223', name: '西部技研', costPrice: 1670, shares: 100 },
+  { code: '6770', name: 'アルプスアルパイン', costPrice: 1184, shares: 100 },
+  { code: '8771', name: 'Eギャランティ', costPrice: 1831, shares: 100 },
+  { code: '9432', name: 'NTT', costPrice: 149, shares: 500 },
+  { code: '7992', name: 'セーラー万年筆', costPrice: 169, shares: 100 },
+];
+
+const DEFAULT_HK = [
+  { code: '0005', name: 'HSBC', costPrice: 141.5, shares: 400 },
+  { code: '1810', name: 'Xiaomi', costPrice: 36.864, shares: 2200 },
+  { code: '9880', name: 'UBTECH', costPrice: 107.6, shares: 100 },
+  { code: '0066', name: 'MTR', costPrice: 27.515, shares: 10000 },
+  { code: '0293', name: 'Cathay Pacific', costPrice: 7.33, shares: 1000 },
+];
+
+// ============================================================
+// LocalStorage管理
+// ============================================================
+function loadData() {
+  const saved = localStorage.getItem('portfolioData');
+  if (saved) {
+    return JSON.parse(saved);
+  }
+  return {
+    jp: DEFAULT_JP.map(s => ({ ...s, currentPrice: null })),
+    hk: DEFAULT_HK.map(s => ({ ...s, currentPrice: null })),
+  };
+}
+
+function saveData(data) {
+  localStorage.setItem('portfolioData', JSON.stringify(data));
+}
+
+function loadHistory() {
+  const saved = localStorage.getItem('portfolioHistory');
+  return saved ? JSON.parse(saved) : { jp: [], hk: [] };
+}
+
+function saveHistoryData(history) {
+  localStorage.setItem('portfolioHistory', JSON.stringify(history));
+}
+
+let portfolioData = loadData();
+
+// ============================================================
+// テーブル描画
+// ============================================================
+function renderTable(market) {
+  const stocks = portfolioData[market];
+  const bodyId = market === 'jp' ? 'jpBody' : 'hkBody';
+  const footId = market === 'jp' ? 'jpFoot' : 'hkFoot';
+  const currency = market === 'jp' ? '円' : 'HKD';
+  const tbody = document.getElementById(bodyId);
+  const tfoot = document.getElementById(footId);
+
+  let totalValue = 0;
+  let totalCost = 0;
+  let totalPL = 0;
+  let allHavePrice = true;
+
+  let html = '';
+  stocks.forEach((s, i) => {
+    const cp = s.currentPrice;
+    const evalValue = cp !== null ? cp * s.shares : null;
+    const pl = cp !== null ? (cp - s.costPrice) * s.shares : null;
+    const plRate = cp !== null && s.costPrice !== 0 ? ((cp - s.costPrice) / s.costPrice * 100) : null;
+
+    if (cp !== null) {
+      totalValue += evalValue;
+      totalCost += s.costPrice * s.shares;
+      totalPL += pl;
+    } else {
+      allHavePrice = false;
+    }
+
+    const plClass = pl !== null ? (pl >= 0 ? 'positive' : 'negative') : '';
+    const plSign = pl !== null ? (pl >= 0 ? '+' : '') : '';
+
+    html += `<tr>
+      <td style="text-align:center">${s.code}</td>
+      <td>${s.name}</td>
+      <td><input class="editable-input" type="number" step="any" value="${s.costPrice}" onchange="updateCost('${market}',${i},this.value)"></td>
+      <td><input class="editable-input" type="number" step="any" value="${cp !== null ? cp : ''}" placeholder="未取得" onchange="updateCurrentPrice('${market}',${i},this.value)"></td>
+      <td><input class="editable-input" type="number" step="1" value="${s.shares}" onchange="updateShares('${market}',${i},this.value)"></td>
+      <td>${evalValue !== null ? formatNum(evalValue, market) : '---'}</td>
+      <td class="${plClass}">${pl !== null ? plSign + formatNum(pl, market) : '---'}</td>
+      <td class="${plClass}">${plRate !== null ? plSign + plRate.toFixed(2) + '%' : '---'}</td>
+      <td style="text-align:center"><button class="btn-delete" onclick="deleteStock('${market}',${i})">削除</button></td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+
+  const totalPLClass = totalPL >= 0 ? 'positive' : 'negative';
+  const totalPLSign = totalPL >= 0 ? '+' : '';
+  const totalPLRate = totalCost !== 0 ? ((totalValue - totalCost) / totalCost * 100) : 0;
+
+  tfoot.innerHTML = `<tr class="total-row">
+    <td colspan="2" style="text-align:center;font-weight:700">合計</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="font-weight:700">${allHavePrice || totalValue > 0 ? formatNum(totalValue, market) : '---'}</td>
+    <td class="${totalPLClass}" style="font-weight:700">${allHavePrice || totalPL !== 0 ? totalPLSign + formatNum(totalPL, market) : '---'}</td>
+    <td class="${totalPLClass}" style="font-weight:700">${allHavePrice || totalCost > 0 ? totalPLSign + totalPLRate.toFixed(2) + '%' : '---'}</td>
+    <td></td>
+  </tr>`;
+
+  // サマリーカード更新
+  if (market === 'jp') {
+    document.getElementById('jp-total-display').textContent = totalValue > 0 ? '¥' + formatNum(totalValue, 'jp') : '---';
+    const plDisp = document.getElementById('jp-pl-display');
+    if (totalPL !== 0 || allHavePrice) {
+      plDisp.textContent = `損益: ${totalPLSign}¥${formatNum(Math.abs(totalPL), 'jp')} (${totalPLSign}${totalPLRate.toFixed(2)}%)`;
+      plDisp.className = 'sub ' + totalPLClass;
+    } else {
+      plDisp.textContent = '';
+    }
+  } else {
+    document.getElementById('hk-total-display').textContent = totalValue > 0 ? 'HK$' + formatNum(totalValue, 'hk') : '---';
+    const plDisp = document.getElementById('hk-pl-display');
+    if (totalPL !== 0 || allHavePrice) {
+      plDisp.textContent = `損益: ${totalPLSign}HK$${formatNum(Math.abs(totalPL), 'hk')} (${totalPLSign}${totalPLRate.toFixed(2)}%)`;
+      plDisp.className = 'sub ' + totalPLClass;
+    } else {
+      plDisp.textContent = '';
+    }
+  }
+}
+
+function formatNum(num, market) {
+  if (market === 'jp') {
+    return Math.round(num).toLocaleString('ja-JP');
+  } else {
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
+
+// ============================================================
+// 編集機能
+// ============================================================
+function updateCost(market, index, value) {
+  portfolioData[market][index].costPrice = parseFloat(value) || 0;
+  saveData(portfolioData);
+  renderTable(market);
+}
+
+function updateCurrentPrice(market, index, value) {
+  portfolioData[market][index].currentPrice = value !== '' ? parseFloat(value) : null;
+  saveData(portfolioData);
+  renderTable(market);
+}
+
+function updateShares(market, index, value) {
+  portfolioData[market][index].shares = parseInt(value) || 0;
+  saveData(portfolioData);
+  renderTable(market);
+}
+
+function deleteStock(market, index) {
+  if (confirm(`${portfolioData[market][index].name} を削除しますか？`)) {
+    portfolioData[market].splice(index, 1);
+    saveData(portfolioData);
+    renderTable(market);
+  }
+}
+
+// ============================================================
+// 銘柄追加モーダル
+// ============================================================
+let addMarket = 'jp';
+
+function openAddModal(market) {
+  addMarket = market;
+  document.getElementById('modalTitle').textContent = market === 'jp' ? '🇯🇵 日本株を追加' : '🇭🇰 香港株を追加';
+  document.getElementById('modalConfirmBtn').className = market === 'jp' ? 'btn-confirm-jp' : 'btn-confirm-hk';
+  document.getElementById('modalCode').value = '';
+  document.getElementById('modalName').value = '';
+  document.getElementById('modalPrice').value = '';
+  document.getElementById('modalShares').value = '';
+  document.getElementById('addModal').classList.add('show');
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+}
+
+function confirmAdd() {
+  const code = document.getElementById('modalCode').value.trim();
+  const name = document.getElementById('modalName').value.trim();
+  const price = parseFloat(document.getElementById('modalPrice').value);
+  const shares = parseInt(document.getElementById('modalShares').value);
+
+  if (!code || !name || isNaN(price) || isNaN(shares)) {
+    alert('すべての項目を入力してください');
+    return;
+  }
+
+  portfolioData[addMarket].push({
+    code: code,
+    name: name,
+    costPrice: price,
+    shares: shares,
+    currentPrice: null,
+  });
+
+  saveData(portfolioData);
+  renderTable(addMarket);
+  closeAddModal();
+  showStatus('銘柄を追加しました', 'success');
+}
+
+// ============================================================
+// 株価取得（Yahoo Finance API via CORSプロキシ）
+// ============================================================
+function showStatus(msg, type) {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'loading') {
+    setTimeout(() => { bar.classList.remove('show'); }, 5000);
+  }
+}
+
+async function fetchPrice(symbol) {
+  // Yahoo Finance v8 API
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+
+  // 複数のCORSプロキシを試行
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (meta && meta.regularMarketPrice) {
+        return meta.regularMarketPrice;
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+  return null;
+}
+
+async function refreshAllPrices() {
+  showStatus('株価を取得中です... しばらくお待ちください', 'loading');
+
+  let successCount = 0;
+  let failCount = 0;
+  const failedNames = [];
+
+  // 日本株
+  for (let i = 0; i < portfolioData.jp.length; i++) {
+    const s = portfolioData.jp[i];
+    const symbol = s.code + '.T';
+    const price = await fetchPrice(symbol);
+    if (price !== null) {
+      portfolioData.jp[i].currentPrice = price;
+      successCount++;
+    } else {
+      failCount++;
+      failedNames.push(s.name);
+    }
+    renderTable('jp');
+  }
+
+  // 香港株
+  for (let i = 0; i < portfolioData.hk.length; i++) {
+    const s = portfolioData.hk[i];
+    const symbol = s.code.replace(/^0+/, '') + '.HK';
+    // 香港株は4桁コードの場合もあるので、先頭ゼロを除去してから.HKを付ける
+    // ただしYahoo Financeでは0005.HKのように4桁のままの場合もある
+    const symbols = [s.code + '.HK', s.code.replace(/^0+/, '') + '.HK'];
+    let price = null;
+    for (const sym of symbols) {
+      price = await fetchPrice(sym);
+      if (price !== null) break;
+    }
+    if (price !== null) {
+      portfolioData.hk[i].currentPrice = price;
+      successCount++;
+    } else {
+      failCount++;
+      failedNames.push(s.name);
+    }
+    renderTable('hk');
+  }
+
+  saveData(portfolioData);
+
+  const now = new Date().toLocaleString('ja-JP');
+  document.getElementById('lastUpdate').textContent = `最終更新: ${now}`;
+  localStorage.setItem('lastUpdate', now);
+
+  if (failCount === 0) {
+    showStatus(`✅ 全${successCount}銘柄の株価を取得しました`, 'success');
+  } else {
+    showStatus(`⚠ ${successCount}銘柄取得成功 / ${failCount}銘柄取得失敗（${failedNames.join(', ')}）→ 手動入力してください`, 'error');
+  }
+}
+
+// ============================================================
+// 履歴・グラフ
+// ============================================================
+function calcTotal(market) {
+  let total = 0;
+  let allHave = true;
+  portfolioData[market].forEach(s => {
+    if (s.currentPrice !== null) {
+      total += s.currentPrice * s.shares;
+    } else {
+      allHave = false;
+    }
+  });
+  return allHave ? total : null;
+}
+
+function saveHistory() {
+  const jpTotal = calcTotal('jp');
+  const hkTotal = calcTotal('hk');
+
+  if (jpTotal === null && hkTotal === null) {
+    alert('株価が取得されていません。先に株価を更新してください。');
+    return;
+  }
+
+  const history = loadHistory();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ja-JP');
+  const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  const label = dateStr + ' ' + timeStr;
+
+  if (jpTotal !== null) {
+    history.jp.push({ date: label, value: Math.round(jpTotal) });
+  }
+  if (hkTotal !== null) {
+    history.hk.push({ date: label, value: Math.round(hkTotal * 100) / 100 });
+  }
+
+  saveHistoryData(history);
+  renderCharts();
+  showStatus('💾 資産データを記録しました', 'success');
+}
+
+function clearHistory() {
+  if (confirm('グラフの履歴データをすべて削除しますか？')) {
+    saveHistoryData({ jp: [], hk: [] });
+    renderCharts();
+    showStatus('履歴をクリアしました', 'success');
+  }
+}
+
+// ============================================================
+// Canvas グラフ描画（ライブラリ不使用）
+// ============================================================
+function renderCharts() {
+  const history = loadHistory();
+  drawChart('jpChart', history.jp, '#2c3e50', '#4A90D9', '¥');
+  drawChart('hkChart', history.hk, '#c0392b', '#e74c3c', 'HK$');
+}
+
+function drawChart(canvasId, data, lineColor, fillColor, prefix) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = rect.width - 30;
+  const h = 280;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (!data || data.length === 0) {
+    ctx.fillStyle = '#999';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('データがありません。「現在の資産を記録」ボタンでデータを追加してください。', w / 2, h / 2);
+    return;
+  }
+
+  const padding = { top: 30, right: 20, bottom: 60, left: 80 };
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+
+  const values = data.map(d => d.value);
+  let minVal = Math.min(...values);
+  let maxVal = Math.max(...values);
+
+  if (minVal === maxVal) {
+    minVal = minVal * 0.95;
+    maxVal = maxVal * 1.05;
+  }
+
+  const range = maxVal - minVal;
+  const yMin = minVal - range * 0.1;
+  const yMax = maxVal + range * 0.1;
+
+  // グリッド
+  ctx.strokeStyle = '#e0e0e0';
+  ctx.lineWidth = 0.5;
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = padding.top + (chartH / gridLines) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(w - padding.right, y);
+    ctx.stroke();
+
+    const val = yMax - ((yMax - yMin) / gridLines) * i;
+    ctx.fillStyle = '#666';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    if (prefix === '¥') {
+      ctx.fillText(prefix + Math.round(val).toLocaleString(), padding.left - 5, y + 3);
+    } else {
+      ctx.fillText(prefix + val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }), padding.left - 5, y + 3);
+    }
+  }
+
+  // データポイント座標
+  const points = data.map((d, i) => {
+    const x = padding.left + (data.length === 1 ? chartW / 2 : (chartW / (data.length - 1)) * i);
+    const y = padding.top + chartH - ((d.value - yMin) / (yMax - yMin)) * chartH;
+    return { x, y };
+  });
+
+  // 塗りつぶし
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, padding.top + chartH);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length - 1].x, padding.top + chartH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
+  grad.addColorStop(0, fillColor + '40');
+  grad.addColorStop(1, fillColor + '05');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // ライン
+  ctx.beginPath();
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.stroke();
+
+  // ドット
+  points.forEach((p, i) => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = lineColor;
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // X軸ラベル
+  ctx.fillStyle = '#666';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  const maxLabels = Math.min(data.length, Math.floor(chartW / 80));
+  const step = Math.max(1, Math.floor(data.length / maxLabels));
+  data.forEach((d, i) => {
+    if (i % step === 0 || i === data.length - 1) {
+      ctx.save();
+      ctx.translate(points[i].x, padding.top + chartH + 12);
+      ctx.rotate(-Math.PI / 6);
+      ctx.fillText(d.date, 0, 0);
+      ctx.restore();
+    }
+  });
+
+  // 最新値表示
+  if (data.length > 0) {
+    const last = data[data.length - 1];
+    const lp = points[points.length - 1];
+    ctx.fillStyle = lineColor;
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    const dispVal = prefix === '¥' ? prefix + Math.round(last.value).toLocaleString() :
+      prefix + last.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    ctx.fillText(dispVal, lp.x, lp.y - 12);
+  }
+}
+
+// ============================================================
+// 初期化
+// ============================================================
+function init() {
+  renderTable('jp');
+  renderTable('hk');
+  renderCharts();
+
+  const lastUpdate = localStorage.getItem('lastUpdate');
+  if (lastUpdate) {
+    document.getElementById('lastUpdate').textContent = `最終更新: ${lastUpdate}`;
+  }
+
+  window.addEventListener('resize', () => {
+    renderCharts();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
